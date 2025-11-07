@@ -1,44 +1,59 @@
-package be.intecbrussel.model;
+package be.intecbrussel.model;                // 1
 
-import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import jakarta.persistence.*;                 // 2
 
-@Entity
-@Table(name = "students")
-public class Student {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Entity                                      // 3
+@Table(name = "students")                    // 4
+public class Student {                       // 5
+    @Id                                      // 6
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 7
+    private Long id;                         // 8
 
-    private String firstname;
-    private String lastname;
+    private String firstname;                // 9
+    private String lastname;                 // 10
 
-    // Один студент принадлежит одной школе
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
-    private School school;
+    public Student() {
+    }                      // 11
 
-    // Один студент может учиться у многих учителей
-    @ManyToMany(mappedBy = "students")
-    private Set<Teacher> teachers = new HashSet<>();
-
-    public Student() {}
-
-    public Student(String firstname, String lastname) {
+    public Student(String firstname, String lastname) { // 12
         this.firstname = firstname;
         this.lastname = lastname;
     }
 
-    // getters & setters
-    public Long getId() { return id; }
-    public String getFirstname() { return firstname; }
-    public String getLastname() { return lastname; }
-    public School getSchool() { return school; }
-    public Set<Teacher> getTeachers() { return teachers; }
+    // getters/setters                       // 13
+    public Long getId() {
+        return id;
+    }
 
-    public void setId(Long id) { this.id = id; }
-    public void setFirstname(String firstname) { this.firstname = firstname; }
-    public void setLastname(String lastname) { this.lastname = lastname; }
-    public void setSchool(School school) { this.school = school; }
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+}
+
+@ManyToOne(fetch = FetchType.LAZY)          // у каждого студента одна школа
+@JoinColumn(name = "school_id")             // внешний ключ в таблице students
+private School school;
+
+public School getSchool() {
+    return school;
+}
+
+public void setSchool(School school) {
+    this.school = school;
 }

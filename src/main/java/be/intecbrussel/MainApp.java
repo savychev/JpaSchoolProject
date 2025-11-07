@@ -1,5 +1,6 @@
 package be.intecbrussel;
 
+import be.intecbrussel.model.Student;
 import be.intecbrussel.config.JpaConfig;
 import jakarta.persistence.EntityManager;
 
@@ -8,9 +9,14 @@ public class MainApp {
         EntityManager em = null;
         try {
             em = JpaConfig.getEntityManager();
-            System.out.println("✅ JPA подключена к MySQL успешно!");
+            em.getTransaction().begin();
+
+            Student s = new Student("Anna", "Ivanova"); // 1
+            em.persist(s);                               // 2
+
+            em.getTransaction().commit();
+            System.out.println("✅ Saved student with id=" + s.getId()); // 3
         } catch (Exception e) {
-            System.err.println("❌ Ошибка подключения: " + e.getMessage());
             e.printStackTrace();
         } finally {
             if (em != null) em.close();
