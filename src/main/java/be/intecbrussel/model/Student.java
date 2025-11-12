@@ -2,6 +2,9 @@ package be.intecbrussel.model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "students")
 public class Student {
@@ -16,6 +19,9 @@ public class Student {
     @JoinColumn(name = "school_id")
     private School school;
 
+    @ManyToMany(mappedBy = "students")
+    private Set<Teacher> teachers = new HashSet<>();
+
     public Student() {} // обязателен для JPA
 
     public Student(String firstname, String lastname) {
@@ -26,10 +32,15 @@ public class Student {
     public Long getId() { return id; }
     public String getFirstname() { return firstname; }
     public String getLastname() { return lastname; }
+    public School getSchool() { return school; }
+    public Set<Teacher> getTeachers() { return teachers; }
+
+
     public void setId(Long id) { this.id = id; }
     public void setFirstname(String firstname) { this.firstname = firstname; }
     public void setLastname(String lastname) { this.lastname = lastname; }
-    public School getSchool() { return school; }
     public void setSchool(School school) { this.school = school; }
+
+
 
 }

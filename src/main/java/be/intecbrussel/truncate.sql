@@ -1,0 +1,10 @@
+USE schooldb;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE student_teacher;
+TRUNCATE TABLE students;
+TRUNCATE TABLE teachers;
+TRUNCATE TABLE schools;
+
+SET FOREIGN_KEY_CHECKS = 1;

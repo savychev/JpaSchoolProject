@@ -3,28 +3,43 @@ package be.intecbrussel;
 import be.intecbrussel.config.JpaConfig;
 import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
+import be.intecbrussel.model.Teacher;
 import jakarta.persistence.EntityManager;
 
 public class MainApp {
     public static void main(String[] args) {
         EntityManager em = JpaConfig.getEntityManager();
-        em.getTransaction().begin();
+        try {
+            em.getTransaction().begin();
 
-        School school = new School("Intec Brussel", "Brussels");
-        Student s1 = new Student("Anna", "Ivanova");
-        Student s2 = new Student("Bob", "Petrov");
+            // 1) Читаем существующую школу и студентов
+            School school = em.createQuery("SELECT s FROM School s", School.class)
+                    .setMaxResults(1).getSingleResult();
 
-        // связываем студентов со школой
-        school.addStudent(s1);
-        school.addStudent(s2);
+            Student s1 = em.createQuery("SELECT s FROM Student s WHERE s.firstname = :fn", Student.class)
+                    .setParameter("fn", "Anna")
+                    .setMaxResults(1).getSingleResult();
 
-        // сохраняем школу (из-за cascade сохранит и студентов)
-        em.persist(school);
+            Student s2 = em.createQuery("SELECT s FROM Student s WHERE s.firstname = :fn", Student.class)
+                    .setParameter("fn", "Bob")
+                    .setMaxResults(1).getSingleResult();
 
-        em.getTransaction().commit();
-        em.close();
-        JpaConfig.close();
+            // 2) Создаём нового учителя и привязываем его к школе
+            Teacher t = new Teacher("Alice", "Brown");
+            t.setSchool(school);
 
-        System.out.println("✅ School and students saved!");
+            // 3) Связываем учителя со студентами (many-to-many)
+            t.addStudent(s1);
+            t.addStudent(s2);
+
+            // 4) Сохраняем только учителя — всё остальное уже есть
+            em.persist(t);
+
+            em.getTransaction().commit();
+            System.out.println("✅ Teacher saved: id=" + t.getId());
+        } finally {
+            em.close();
+            JpaConfig.close();
+        }
     }
 }
