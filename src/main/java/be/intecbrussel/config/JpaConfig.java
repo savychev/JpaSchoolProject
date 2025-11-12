@@ -6,7 +6,7 @@ import jakarta.persistence.Persistence;
 
 public class JpaConfig {
     private static final EntityManagerFactory emf =
-            Persistence.createEntityManagerFactory("schooldb");
+            Persistence.createEntityManagerFactory("schooldb"); // имя из persistence.xml
 
     public static EntityManager getEntityManager() {
         return emf.createEntityManager();
