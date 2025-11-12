@@ -1,45 +1,37 @@
 package be.intecbrussel;
 
 import be.intecbrussel.config.JpaConfig;
-import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
-import be.intecbrussel.model.Teacher;
-import jakarta.persistence.EntityManager;
+import be.intecbrussel.service.SchoolService;
+
+import java.util.List;
 
 public class MainApp {
     public static void main(String[] args) {
-        EntityManager em = JpaConfig.getEntityManager();
-        try {
-            em.getTransaction().begin();
+        SchoolService svc = new SchoolService();
 
-            // 1) Читаем существующую школу и студентов
-            School school = em.createQuery("SELECT s FROM School s", School.class)
-                    .setMaxResults(1).getSingleResult();
+        // 1) создать школу + сразу студентов
+        Student a = new Student("Anna", "Ivanova");
+        Student b = new Student("Bob", "Petrov");
+        var school = svc.addSchoolWithStudents("Intec Brussel", "Brussels", List.of(a, b));
+        System.out.println("✅ school id=" + school.getId() + " students=" + school.getStudents().size());
 
-            Student s1 = em.createQuery("SELECT s FROM Student s WHERE s.firstname = :fn", Student.class)
-                    .setParameter("fn", "Anna")
-                    .setMaxResults(1).getSingleResult();
+        // 2) добавить ещё одного студента в уже существующую школу
+        var c = svc.addStudentToSchool(school.getId(), "Carla", "Moreira");
+        System.out.println("➕ added student id=" + (c != null ? c.getId() : null));
 
-            Student s2 = em.createQuery("SELECT s FROM Student s WHERE s.firstname = :fn", Student.class)
-                    .setParameter("fn", "Bob")
-                    .setMaxResults(1).getSingleResult();
+        // 3) прочитать и обновить школу
+        var loaded = svc.getSchool(school.getId());
+        System.out.println("🔎 loaded: " + loaded.getName() + " (" + loaded.getCity() + ")");
+        svc.updateSchool(loaded.getId(), "Intec Brussels", null);
 
-            // 2) Создаём нового учителя и привязываем его к школе
-            Teacher t = new Teacher("Alice", "Brown");
-            t.setSchool(school);
+        // 4) посмотреть все школы
+        System.out.println("📋 schools total=" + svc.getAllSchools().size());
 
-            // 3) Связываем учителя со студентами (many-to-many)
-            t.addStudent(s1);
-            t.addStudent(s2);
+        // 5) (опционально) удалить школу
+        // boolean removed = svc.removeSchool(school.getId());
+        // System.out.println("🗑️ removed? " + removed);
 
-            // 4) Сохраняем только учителя — всё остальное уже есть
-            em.persist(t);
-
-            em.getTransaction().commit();
-            System.out.println("✅ Teacher saved: id=" + t.getId());
-        } finally {
-            em.close();
-            JpaConfig.close();
-        }
+        JpaConfig.close();
     }
 }
