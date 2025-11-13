@@ -1,16 +1,15 @@
 package be.intecbrussel.service;
 
+import be.intecbrussel.config.JpaExecutor;
 import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
 import be.intecbrussel.repository.SchoolRepository;
-import be.intecbrussel.repository.StudentRepository;
 
 import java.util.List;
 
 public class SchoolService {
 
     private final SchoolRepository schools = new SchoolRepository();
-    private final StudentRepository students = new StudentRepository();
 
     // --- CRUD по школе ---
 
@@ -62,15 +61,23 @@ public class SchoolService {
         return school;
     }
 
-    // Утилита: добавить одного существующего/нового студента к школе
-    public Student addStudentToSchool(Long schoolId, String firstname, String lastname) {
-        School school = schools.findById(schoolId);
-        if (school == null) return null;
+    // Утилита: привязать уже созданного студента к школе
+    public Student addStudentToSchool(Long schoolId, Long studentId) {
+        return JpaExecutor.executeInTransaction(entityManager -> {
+            School school = entityManager.find(School.class, schoolId);
+            Student student = entityManager.find(Student.class, studentId);
 
-        Student st = new Student(firstname, lastname);
-        st.setSchool(school);   // ✅ просто ставим FK (school_id)
-        students.create(st);    // INSERT students (..., school_id)
-        return st;
+            if (school == null || student == null) {
+                return null;
+            }
+
+            if (school.equals(student.getSchool())) {
+                return student; // уже привязаны друг к другу
+            }
+
+            school.addStudent(student);
+            return student;
+        });
     }
 
 }
