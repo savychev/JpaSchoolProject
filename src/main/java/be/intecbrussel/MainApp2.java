@@ -20,19 +20,16 @@ public class MainApp2 {
 
         EntityManager em = JpaConfig.getEntityManager();
 
-        // репозитории
+
         SchoolRepository schoolRepo = new SchoolRepository(em);
         StudentRepository studentRepo = new StudentRepository(em);
         TeacherRepository teacherRepo = new TeacherRepository(em);
 
-        // сервисы
+
         SchoolService schoolService = new SchoolService(schoolRepo);
         StudentService studentService = new StudentService(studentRepo);
         TeacherService teacherService = new TeacherService(teacherRepo);
 
-        // -----------------------------
-        // 1. СОЗДАЁМ НЕСКОЛЬКО ШКОЛ
-        // -----------------------------
         School schoolA = new School();
         schoolA.setName("Alpha School");
         schoolA.setCity("Brussels");
@@ -43,9 +40,7 @@ public class MainApp2 {
         schoolB.setCity("Antwerp");
         schoolService.addSchool(schoolB);
 
-        // -----------------------------
-        // 2. СОЗДАЁМ УЧИТЕЛЕЙ
-        // -----------------------------
+
         Teacher t1 = new Teacher();
         t1.setFirstname("John");
         t1.setLastname("Doe");
@@ -65,9 +60,7 @@ public class MainApp2 {
         teacherService.addTeacher(t2);
         teacherService.addTeacher(t3);
 
-        // -----------------------------
-        // 3. СОЗДАЁМ НЕСКОЛЬКО СТУДЕНТОВ
-        // -----------------------------
+
         Student s1 = new Student();
         s1.setFirstname("Alex");
         s1.setLastname("Johnson");
@@ -83,19 +76,18 @@ public class MainApp2 {
         s3.setLastname("Wilson");
         s3.setSchool(schoolB);
 
-        // связи Many-to-Many
-        // Alex -> John Doe, Sarah Smith
+
         s1.getTeachers().add(t1);
         t1.getStudents().add(s1);
 
         s1.getTeachers().add(t2);
         t2.getStudents().add(s1);
 
-        // Emily -> Sarah Smith
+
         s2.getTeachers().add(t2);
         t2.getStudents().add(s2);
 
-        // Michael -> Bob Brown
+
         s3.getTeachers().add(t3);
         t3.getStudents().add(s3);
 
@@ -103,9 +95,7 @@ public class MainApp2 {
         studentService.addStudent(s2);
         studentService.addStudent(s3);
 
-        // -----------------------------
-        // 4. ПОКАЗЫВАЕМ ДАННЫЕ
-        // -----------------------------
+
         System.out.println("=== Schools ===");
         for (School sc : schoolService.getAllSchools()) {
             System.out.println("- " + sc.getName() + " (" + sc.getCity() + ")");

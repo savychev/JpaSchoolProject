@@ -10,13 +10,13 @@
         <class>be.intecbrussel.model.School</class>
 
         <properties>
-            <!-- Подключение к MySQL -->
+
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/schooldb"/>
             <property name="jakarta.persistence.jdbc.user" value="root"/>
             <property name="jakarta.persistence.jdbc.password" value="intec-123"/>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
 
-            <!-- Hibernate настройки -->
+
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>
