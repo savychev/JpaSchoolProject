@@ -7,40 +7,31 @@ import java.util.List;
 
 public class StudentService {
 
-    private final StudentRepository repo = new StudentRepository();
+    private StudentRepository studentRepository;
 
-    // создать нового студента
-    public Student addStudent(String firstname, String lastname) {
-        Student s = new Student(firstname, lastname);
-        repo.create(s);
-        return s;
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
-    // получить одного студента
-    public Student getStudent(Long id) {
-        return repo.findById(id);
+    public void addStudent(Student student) {
+        studentRepository.create(student);
     }
 
-    // получить всех студентов
     public List<Student> getAllStudents() {
-        return repo.findAll();
+        return studentRepository.findAll();
     }
 
-    // обновить данные (по-простому)
-    public Student updateStudent(Long id, String newFirstname, String newLastname) {
-        Student existing = repo.findById(id);
-        if (existing == null) return null;
-        if (newFirstname != null) existing.setFirstname(newFirstname);
-        if (newLastname  != null) existing.setLastname(newLastname);
-        repo.update(existing);
-        return existing;
+    public void updateStudent(Long id, Student newStudentData) {
+        Student existingStudent = studentRepository.findById(id);
+        if (existingStudent != null) {
+            existingStudent.setFirstname(newStudentData.getFirstname());
+            existingStudent.setLastname(newStudentData.getLastname());
+            existingStudent.setSchool(newStudentData.getSchool());
+            studentRepository.update(existingStudent);
+        }
     }
 
-    // удалить по id
-    public boolean removeStudent(Long id) {
-        Student existing = repo.findById(id);
-        if (existing == null) return false;
-        repo.delete(id);
-        return true;
+    public void removeStudent(Long id) {
+        studentRepository.delete(id);
     }
 }

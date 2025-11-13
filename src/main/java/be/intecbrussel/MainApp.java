@@ -4,70 +4,113 @@ import be.intecbrussel.config.JpaConfig;
 import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
 import be.intecbrussel.model.Teacher;
+import be.intecbrussel.repository.SchoolRepository;
+import be.intecbrussel.repository.StudentRepository;
+import be.intecbrussel.repository.TeacherRepository;
 import be.intecbrussel.service.SchoolService;
 import be.intecbrussel.service.StudentService;
 import be.intecbrussel.service.TeacherService;
+import jakarta.persistence.EntityManager;
+
+import java.util.List;
 
 public class MainApp {
+
     public static void main(String[] args) {
-        try {
-            SchoolService schoolService = new SchoolService();
-            StudentService studentService = new StudentService();
-            TeacherService teacherService = new TeacherService();
 
-            // -----------------------------
-            // 1. Создаём школу
-            // -----------------------------
-            School school = schoolService.addSchool("Intec Brussel", "Brussels");
-            System.out.println("🏫 Created school: id=" + school.getId());
+        EntityManager entityManager = JpaConfig.getEntityManager();
 
-            // -----------------------------
-            // 2. Создаём студентов
-            // -----------------------------
-            Student anna = studentService.addStudent("Anna", "Ivanova");
-            Student bob  = studentService.addStudent("Bob", "Petrov");
+        SchoolRepository schoolRepository = new SchoolRepository(entityManager);
+        StudentRepository studentRepository = new StudentRepository(entityManager);
+        TeacherRepository teacherRepository = new TeacherRepository(entityManager);
 
-            System.out.println("👩‍🎓 Created students: " + anna.getId() + ", " + bob.getId());
+        SchoolService schoolService = new SchoolService(schoolRepository);
+        StudentService studentService = new StudentService(studentRepository);
+        TeacherService teacherService = new TeacherService(teacherRepository);
 
-            // -----------------------------
-            // 3. Связываем студентов со школой
-            // -----------------------------
-            schoolService.addStudentToSchool(school.getId(), anna.getId());
-            schoolService.addStudentToSchool(school.getId(), bob.getId());
+        School school = new School();
+        school.setName("Intec School");
+        school.setCity("Brussels");
+        schoolService.addSchool(school);
 
-            System.out.println("📌 Students assigned to school.");
+        Teacher teacher1 = new Teacher();
+        teacher1.setFirstname("Jan");
+        teacher1.setLastname("Jansen");
+        teacher1.setSchool(school);
 
-            // -----------------------------
-            // 4. Создаём учителей
-            // -----------------------------
-            Teacher alice = teacherService.addTeacher("Alice", "Brown");
-            Teacher john  = teacherService.addTeacher("John", "Smith");
+        Teacher teacher2 = new Teacher();
+        teacher2.setFirstname("Piet");
+        teacher2.setLastname("Peeters");
+        teacher2.setSchool(school);
 
-            System.out.println("👨‍🏫 Created teachers: " + alice.getId() + ", " + john.getId());
+        teacherService.addTeacher(teacher1);
+        teacherService.addTeacher(teacher2);
 
-            // -----------------------------
-            // 5. Привязываем учителей к школе
-            // -----------------------------
-            teacherService.assignTeacherToSchool(alice.getId(), school.getId());
-            teacherService.assignTeacherToSchool(john.getId(), school.getId());
+        Student student1 = new Student();
+        student1.setFirstname("Anna");
+        student1.setLastname("Novak");
+        student1.setSchool(school);
 
-            System.out.println("🏫 Teachers assigned to school.");
+        Student student2 = new Student();
+        student2.setFirstname("Maria");
+        student2.setLastname("Ivanova");
+        student2.setSchool(school);
 
-            // -----------------------------
-            // 6. Many-to-Many связи: учителя ↔ студенты
-            // -----------------------------
-            teacherService.addStudentToTeacher(alice.getId(), anna.getId()); // Alice учит Анну
-            teacherService.addStudentToTeacher(john.getId(), anna.getId());  // John учит Анну
-            teacherService.addStudentToTeacher(john.getId(), bob.getId());   // John учит Боба
+        student1.getTeachers().add(teacher1);
+        student1.getTeachers().add(teacher2);
+        teacher1.getStudents().add(student1);
+        teacher2.getStudents().add(student1);
 
-            System.out.println("🔗 Teachers linked with students.");
+        student2.getTeachers().add(teacher1);
+        teacher1.getStudents().add(student2);
 
-            // -----------------------------
-            // Готово
-            // -----------------------------
-            System.out.println("\n🎉 All operations completed successfully!");
-        } finally {
-            JpaConfig.close();
+        studentService.addStudent(student1);
+        studentService.addStudent(student2);
+
+        List<School> schools = schoolService.getAllSchools();
+        System.out.println("Schools:");
+        for (School s : schools) {
+            System.out.println("- " + s.getName() + " (" + s.getCity() + ")");
         }
+
+        List<Teacher> teachers = teacherService.getAllTeachers();
+        System.out.println("Teachers:");
+        for (Teacher t : teachers) {
+            System.out.println("- " + t.getFirstname() + " " + t.getLastname());
+        }
+
+        List<Student> students = studentService.getAllStudents();
+        System.out.println("Students:");
+        for (Student st : students) {
+            System.out.println("- " + st.getFirstname() + " " + st.getLastname());
+        }
+
+        Student updatedStudentData = new Student();
+        updatedStudentData.setFirstname("Anna-Updated");
+        updatedStudentData.setLastname("Novak-Updated");
+        updatedStudentData.setSchool(school);
+
+        studentService.updateStudent(student1.getId(), updatedStudentData);
+
+        System.out.println("After update:");
+        students = studentService.getAllStudents();
+        for (Student st : students) {
+            System.out.println("- " + st.getId() + ": " + st.getFirstname() + " " + st.getLastname());
+        }
+
+        if (!students.isEmpty()) {
+            Long idToDelete = students.get(0).getId();
+            studentService.removeStudent(idToDelete);
+            System.out.println("Deleted student with id: " + idToDelete);
+        }
+
+        System.out.println("After delete:");
+        students = studentService.getAllStudents();
+        for (Student st : students) {
+            System.out.println("- " + st.getId() + ": " + st.getFirstname() + " " + st.getLastname());
+        }
+
+        JpaConfig.close();
+        entityManager.close();
     }
 }
