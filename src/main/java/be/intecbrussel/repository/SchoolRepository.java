@@ -6,14 +6,18 @@ import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 
+// This class manages database actions for school records.
 public class SchoolRepository {
 
+    // This field holds the entity manager used to talk to the database.
     private EntityManager entityManager;
 
+    // This constructor assigns the entity manager that runs all school actions.
     public SchoolRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
+    // This method saves a new school entry within a transaction.
     public void create(School school) {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
@@ -21,6 +25,7 @@ public class SchoolRepository {
         transaction.commit();
     }
 
+    // This method finds a school by id using a transaction.
     public School findById(Long id) {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
@@ -29,6 +34,7 @@ public class SchoolRepository {
         return school;
     }
 
+    // This method returns every school by running a select query within a transaction.
     public List<School> findAll() {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
@@ -39,6 +45,7 @@ public class SchoolRepository {
         return schools;
     }
 
+    // This method updates a school entry and commits the transaction.
     public void update(School school) {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
@@ -46,6 +53,7 @@ public class SchoolRepository {
         transaction.commit();
     }
 
+    // This method removes a school if it is found, inside a transaction.
     public void delete(Long id) {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
