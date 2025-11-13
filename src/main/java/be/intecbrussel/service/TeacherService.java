@@ -3,7 +3,6 @@ package be.intecbrussel.service;
 import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
 import be.intecbrussel.model.Teacher;
-import be.intecbrussel.config.JpaExecutor;
 import be.intecbrussel.repository.TeacherRepository;
 
 import java.util.List;

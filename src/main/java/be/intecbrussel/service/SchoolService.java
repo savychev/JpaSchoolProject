@@ -1,6 +1,5 @@
 package be.intecbrussel.service;
 
-import be.intecbrussel.config.JpaExecutor;
 import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
 import be.intecbrussel.repository.SchoolRepository;

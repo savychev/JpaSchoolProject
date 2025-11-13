@@ -1,40 +1,58 @@
 package be.intecbrussel.repository;
 
-import be.intecbrussel.config.JpaExecutor;
+import be.intecbrussel.config.JpaConfig;
 import be.intecbrussel.model.School;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
 import java.util.List;
 
 public class SchoolRepository {
 
-    // CREATE
     public void create(School school) {
-        JpaExecutor.executeInTransaction(em -> em.persist(school));
+        EntityManager em = JpaConfig.getEntityManager();
+        em.getTransaction().begin();
+        em.persist(school);
+        em.getTransaction().commit();
+        em.close();
     }
 
-    // READ by id
     public School findById(Long id) {
-        return JpaExecutor.execute(em -> em.find(School.class, id));
+        EntityManager em = JpaConfig.getEntityManager();
+        em.getTransaction().begin();
+        School school = em.find(School.class, id);
+        em.getTransaction().commit();
+        em.close();
+        return school;
     }
 
-    // READ all
     public List<School> findAll() {
-        return JpaExecutor.execute(em ->
-                em.createQuery("SELECT s FROM School s", School.class)
-                        .getResultList());
+        EntityManager em = JpaConfig.getEntityManager();
+        em.getTransaction().begin();
+        TypedQuery<School> query =
+                em.createQuery("SELECT s FROM School s", School.class);
+        List<School> schools = query.getResultList();
+        em.getTransaction().commit();
+        em.close();
+        return schools;
     }
 
-    // UPDATE
     public void update(School school) {
-        JpaExecutor.executeInTransaction(em -> em.merge(school));
+        EntityManager em = JpaConfig.getEntityManager();
+        em.getTransaction().begin();
+        em.merge(school);
+        em.getTransaction().commit();
+        em.close();
     }
 
-    // DELETE
     public void delete(Long id) {
-        JpaExecutor.executeInTransaction(em -> {
-            School school = em.find(School.class, id);
-            if (school != null) {
-                em.remove(school);
-            }
-        });
+        EntityManager em = JpaConfig.getEntityManager();
+        em.getTransaction().begin();
+        School school = em.find(School.class, id);
+        if (school != null) {
+            em.remove(school);
+        }
+        em.getTransaction().commit();
+        em.close();
     }
 }
