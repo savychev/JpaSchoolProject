@@ -4,7 +4,6 @@ import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
 import be.intecbrussel.model.Teacher;
 import be.intecbrussel.config.JpaExecutor;
-import be.intecbrussel.repository.SchoolRepository;
 import be.intecbrussel.repository.TeacherRepository;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.List;
 public class TeacherService {
 
     private final TeacherRepository teachers = new TeacherRepository();
-    private final SchoolRepository schools = new SchoolRepository();
 
     // ========== CRUD по учителю ==========
 
@@ -49,13 +47,21 @@ public class TeacherService {
     // ========== Привязать учителя к школе (Many-To-One) ==========
 
     public Teacher assignTeacherToSchool(Long teacherId, Long schoolId) {
-        Teacher t = teachers.findById(teacherId);
-        School s = schools.findById(schoolId);
-        if (t == null || s == null) return null;
+        return JpaExecutor.executeInTransaction(entityManager -> {
+            Teacher teacher = entityManager.find(Teacher.class, teacherId);
+            School school = entityManager.find(School.class, schoolId);
 
-        t.setSchool(s);       // ⚠️ НЕ ТРОГАЕМ school.getTeachers() (LAZY SAFE)
-        teachers.update(t);   // UPDATE teacher SET school_id = ?
-        return t;
+            if (teacher == null || school == null) {
+                return null;
+            }
+
+            if (school.equals(teacher.getSchool())) {
+                return teacher;
+            }
+
+            school.addTeacher(teacher);
+            return teacher;
+        });
     }
 
     // ========== Привязать учителя к студенту (Many-to-Many) ==========

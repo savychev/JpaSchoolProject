@@ -14,8 +14,9 @@
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="jakarta.persistence.jdbc.url"
                       value="jdbc:mysql://localhost:3306/schooldb?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;useSSL=false&amp;allowPublicKeyRetrieval=true"/>
-            <property name="jakarta.persistence.jdbc.user" value="root"/>
-            <property name="jakarta.persistence.jdbc.password" value="intec-123"/>
+            <!-- Значения учётных данных переопределяются через переменные окружения DB_USER/DB_PASSWORD -->
+            <property name="jakarta.persistence.jdbc.user" value="change-me"/>
+            <property name="jakarta.persistence.jdbc.password" value="change-me"/>
 
             <!-- Hibernate -->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
