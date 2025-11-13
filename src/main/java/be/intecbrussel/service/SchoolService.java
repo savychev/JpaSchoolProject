@@ -68,8 +68,9 @@ public class SchoolService {
         if (school == null) return null;
 
         Student st = new Student(firstname, lastname);
-        school.addStudent(st);      // двусторонняя связь
-        schools.update(school);     // merge школы протолкнёт изменения (FK school_id) и вставит студента
+        st.setSchool(school);   // ✅ просто ставим FK (school_id)
+        students.create(st);    // INSERT students (..., school_id)
         return st;
     }
+
 }

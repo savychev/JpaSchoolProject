@@ -1,36 +1,71 @@
 package be.intecbrussel;
 
 import be.intecbrussel.config.JpaConfig;
+import be.intecbrussel.model.School;
 import be.intecbrussel.model.Student;
+import be.intecbrussel.model.Teacher;
 import be.intecbrussel.service.SchoolService;
-
-import java.util.List;
+import be.intecbrussel.service.StudentService;
+import be.intecbrussel.service.TeacherService;
 
 public class MainApp {
     public static void main(String[] args) {
-        SchoolService svc = new SchoolService();
 
-        // 1) создать школу + сразу студентов
-        Student a = new Student("Anna", "Ivanova");
-        Student b = new Student("Bob", "Petrov");
-        var school = svc.addSchoolWithStudents("Intec Brussel", "Brussels", List.of(a, b));
-        System.out.println("✅ school id=" + school.getId() + " students=" + school.getStudents().size());
+        SchoolService schoolService = new SchoolService();
+        StudentService studentService = new StudentService();
+        TeacherService teacherService = new TeacherService();
 
-        // 2) добавить ещё одного студента в уже существующую школу
-        var c = svc.addStudentToSchool(school.getId(), "Carla", "Moreira");
-        System.out.println("➕ added student id=" + (c != null ? c.getId() : null));
+        // -----------------------------
+        // 1. Создаём школу
+        // -----------------------------
+        School school = schoolService.addSchool("Intec Brussel", "Brussels");
+        System.out.println("🏫 Created school: id=" + school.getId());
 
-        // 3) прочитать и обновить школу
-        var loaded = svc.getSchool(school.getId());
-        System.out.println("🔎 loaded: " + loaded.getName() + " (" + loaded.getCity() + ")");
-        svc.updateSchool(loaded.getId(), "Intec Brussels", null);
+        // -----------------------------
+        // 2. Создаём студентов
+        // -----------------------------
+        Student anna = studentService.addStudent("Anna", "Ivanova");
+        Student bob  = studentService.addStudent("Bob", "Petrov");
 
-        // 4) посмотреть все школы
-        System.out.println("📋 schools total=" + svc.getAllSchools().size());
+        System.out.println("👩‍🎓 Created students: " + anna.getId() + ", " + bob.getId());
 
-        // 5) (опционально) удалить школу
-        // boolean removed = svc.removeSchool(school.getId());
-        // System.out.println("🗑️ removed? " + removed);
+        // -----------------------------
+        // 3. Связываем студентов со школой
+        // -----------------------------
+        schoolService.addStudentToSchool(school.getId(), anna.getFirstname(), anna.getLastname());
+        schoolService.addStudentToSchool(school.getId(), bob.getFirstname(), bob.getLastname());
+
+        System.out.println("📌 Students assigned to school.");
+
+        // -----------------------------
+        // 4. Создаём учителей
+        // -----------------------------
+        Teacher alice = teacherService.addTeacher("Alice", "Brown");
+        Teacher john  = teacherService.addTeacher("John", "Smith");
+
+        System.out.println("👨‍🏫 Created teachers: " + alice.getId() + ", " + john.getId());
+
+        // -----------------------------
+        // 5. Привязываем учителей к школе
+        // -----------------------------
+        teacherService.assignTeacherToSchool(alice.getId(), school.getId());
+        teacherService.assignTeacherToSchool(john.getId(), school.getId());
+
+        System.out.println("🏫 Teachers assigned to school.");
+
+        // -----------------------------
+        // 6. Many-to-Many связи: учителя ↔ студенты
+        // -----------------------------
+        teacherService.addStudentToTeacher(alice.getId(), anna.getId()); // Alice учит Анну
+        teacherService.addStudentToTeacher(john.getId(), anna.getId());  // John учит Анну
+        teacherService.addStudentToTeacher(john.getId(), bob.getId());   // John учит Боба
+
+        System.out.println("🔗 Teachers linked with students.");
+
+        // -----------------------------
+        // Готово
+        // -----------------------------
+        System.out.println("\n🎉 All operations completed successfully!");
 
         JpaConfig.close();
     }
